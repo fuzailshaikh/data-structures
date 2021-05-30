@@ -1,7 +1,9 @@
-package com.fuzailshaikh.linkedlist;
+package com.fuzailshaikh.linkedlist.single;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import com.fuzailshaikh.linkedlist.common.Node;
 
 public class SinglyLinkedList<T> {
 	protected Node<T> head;

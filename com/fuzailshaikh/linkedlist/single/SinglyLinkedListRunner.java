@@ -1,4 +1,6 @@
-package com.fuzailshaikh.linkedlist;
+package com.fuzailshaikh.linkedlist.single;
+
+import com.fuzailshaikh.linkedlist.common.Node;
 
 public class SinglyLinkedListRunner {
 	public static void main(String[] args) {

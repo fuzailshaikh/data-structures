@@ -1,8 +1,8 @@
-package com.fuzailshaikh.linkedlist;
+package com.fuzailshaikh.linkedlist.common;
 
 public class Node<T> {
-	protected T data;
-	protected Node<T> next;
+	public T data;
+	public Node<T> next;
 
 	public Node(T data) {
 		this.data = data;
