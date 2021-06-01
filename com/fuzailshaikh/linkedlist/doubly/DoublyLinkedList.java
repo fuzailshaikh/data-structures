@@ -94,7 +94,7 @@ public class DoublyLinkedList<T> {
 			return true;
 		}
 
-		// 2. Node to delete (B) is in middle or end
+		// 3. Node to delete (B) is in middle or end
 		// A -> B -> C
 		// A -> C
 		BiNode<T> temp = head;
