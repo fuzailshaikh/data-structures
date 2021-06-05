@@ -3,72 +3,83 @@ package com.fuzailshaikh.linkedlist.circular;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fuzailshaikh.linkedlist.common.ILinkedList;
+import com.fuzailshaikh.linkedlist.common.INode;
 import com.fuzailshaikh.linkedlist.common.Node;
 
-public class CircularLinkedList<T> {
+public class CircularLinkedList<T> implements ILinkedList<T> {
 	protected Node<T> head;
 	protected Node<T> tail;
+	protected int size = 0;
 
 	public CircularLinkedList(Node<T> node) {
 		this.head = node;
 		this.tail = node;
+		this.size = 1;
 	}
 
-	public void addNodeInFront(Node<T> node) {
+	public void addNodeOnEnd(INode<T> node) {
 		// Old tail node would point to new node
-		tail.next = node;
+		tail.setNext(node);
 
 		// New first node should point to head node
-		node.next = head;
+		node.setNext(head);
 
-		// Head is the new node
-		head = node;
+		// Post logic after insertion
+		postInsertion();
 	}
 
-	public void addNodeInEnd(Node<T> node) {
-		// Old tail node would point to new node
-		tail.next = node;
-
-		// New last node should point to head node
-		node.next = head;
-
-		// Make new node as tail node
-		tail = node;
+	@Override
+	public void addNodeInFront(INode<T> node) {
+		addNodeOnEnd(node);
+		updateHeadTo(node);
 	}
 
-	public boolean removeNode(Node<T> node) {
-		// 1. Node to delete is first node of list
-		// Move head pointer to second node
+	@Override
+	public void addNodeInEnd(INode<T> node) {
+		addNodeOnEnd(node);
+		updateTailTo(node);
+	}
+
+	public boolean removeNode(INode<T> node) {
+		// 1. Node to delete (A) is first node of list
+		// A -> B
+		// B
 		if (head == node) {
-			head = head.next;
-			tail.next = head;
+			// Move head pointer to second node
+			updateHeadTo(head.getNext());
+			updateTailTo(head);
+			postDeletion();
 			return true;
 		}
 
-		// 2. Node to delete (B) is in middle or end
+		// 2. Node to delete (B) is in middle
 		// A -> B -> C
 		// A -> C
-		Node<T> temp = head;
-
 		// Find node for which next pointer has the node to delete (A)
-		while (temp.next != head && temp.next != node) {
-			temp = temp.next;
+		Node<T> temp = head;
+		while (!isLast(temp.getNext())) {
+			if (temp.getNext() == node) {
+				temp.setNext(temp.getNext().getNext());
+				postDeletion();
+				return true;
+			} else {
+				temp = getSinglyNode(temp.getNext());
+			}
 		}
 
-		// We reached last node and didn't find node to delete
-		if (temp.next == head) {
-			return false;
-		}
-		// Node to delete is last node
-		else if (temp.next == tail) {
-			temp.next = head;
-			tail = temp;
-		}
-		else {
-			temp.next = temp.next.next;
+		// 3. Node to delete (C) is at the end
+		// A -> B -> C
+		// A -> B
+		// We reached last node and last node is the node to delete
+		if (isLast(temp.getNext()) && temp.getNext() == node) {
+			temp.setNext(head);
+			updateTailTo(temp);
+			postDeletion();
+			return true;
 		}
 
-		return true;
+		return false;
 	}
 
 	public List<Object> getData() {
@@ -77,35 +88,58 @@ public class CircularLinkedList<T> {
 
 		// Loop over all nodes
 		do {
-			data.add(temp.data);
-			temp = temp.next;
+			data.add(temp.getValue());
+			temp = getSinglyNode(temp.getNext());
 		} while (temp != head);
 
 		return data;
 	}
 
-	public boolean contains(Object data) {
-		return index(data) != -1;
-	}
-
-	public int index(Object data) {
-		int index = -1;
+	@Override
+	public int indexOf(T data) {
 		Node<T> temp = head;
 
-		// Loop over all nodes
-		for (int i = 0; temp != tail; i++) {
-
-			// If data matches, set the current index
-			if (temp != null && temp.data == data) {
-				index = i;
-				break;
-			}
-
-			// Jump to next node
-			temp = temp.next;
+		int index = 0;
+		while (!isLast(temp) && !temp.contains(data)) {
+			temp = getSinglyNode(temp.getNext());
+			index = index + 1;
 		}
 
-		return index;
+		return temp.contains(data) ? index : -1;
+	}
+
+	@Override
+	public int size() {
+		return size;
+	}
+
+	@Override
+	public INode<T> getHead() {
+		return head;
+	}
+
+	private void postInsertion() {
+		this.size = this.size + 1;
+	}
+
+	private void postDeletion() {
+		this.size = this.size - 1;
+	}
+
+	private void updateHeadTo(INode<T> node) {
+		head = getSinglyNode(node);
+	}
+
+	private void updateTailTo(INode<T> node) {
+		tail = getSinglyNode(node);
+	}
+
+	private Node<T> getSinglyNode(INode<T> node) {
+		return (Node<T>) node;
+	}
+
+	private boolean isLast(INode<T> node) {
+		return tail == node;
 	}
 
 }

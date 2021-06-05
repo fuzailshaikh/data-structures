@@ -3,57 +3,17 @@ package com.fuzailshaikh.linkedlist.single;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fuzailshaikh.linkedlist.common.ILinkedList;
+import com.fuzailshaikh.linkedlist.common.INode;
 import com.fuzailshaikh.linkedlist.common.Node;
 
-public class SinglyLinkedList<T> {
+public class SinglyLinkedList<T> implements ILinkedList<T> {
 	protected Node<T> head;
+	protected int size = 0;
 
 	public SinglyLinkedList(Node<T> head) {
 		this.head = head;
-	}
-
-	public void addNodeInEnd(Node<T> node) {
-		Node<T> temp = head;
-
-		// Find last node
-		while (temp.next != null) {
-			temp = temp.next;
-		}
-
-		// Connect new node to end of linked list
-		temp.next = node;
-	}
-
-	public void addNodeInFront(Node<T> node) {
-		node.next = head;
-		head = node;
-	}
-
-	public boolean removeNode(Node<T> node) {
-		// 1. Node to delete is first node of list
-		// Move head pointer to second node
-		if (head == node) {
-			head = head.next;
-			return true;
-		}
-
-		// 2. Node to delete (B) is in middle or end
-		// A -> B -> C
-		// A -> C
-		Node<T> temp = head;
-
-		// Find node for which next pointer has the node to delete (A)
-		while (temp.next != null && temp.next != node) {
-			temp = temp.next;
-		}
-
-		// We reached last node and didn't find node to delete
-		if (temp.next == null) {
-			return false;
-		}
-
-		temp.next = temp.next.next;
-		return true;
+		this.size = 1;
 	}
 
 	public List<Object> getData() {
@@ -61,36 +21,116 @@ public class SinglyLinkedList<T> {
 		Node<T> temp = head;
 
 		// Loop over all nodes
-		while (temp != null) {
-			data.add(temp.data);
-			temp = temp.next;
+		while (!isLast(temp)) {
+			data.add(temp.getValue());
+			temp = getSinglyNode(temp.getNext());
 		}
 
 		return data;
 	}
 
-	public boolean contains(Object data) {
-		return index(data) != -1;
-	}
-
-	public int index(Object data) {
-		int index = -1;
+	@Override
+	public void addNodeInEnd(INode<T> node) {
 		Node<T> temp = head;
 
-		// Loop over all nodes
-		for (int i = 0; temp != null; i++) {
-
-			// If data matches, set the current index
-			if (temp != null && temp.data == data) {
-				index = i;
-				break;
-			}
-
-			// Jump to next node
-			temp = temp.next;
+		// Find last node
+		while (!isLast(temp)) {
+			temp = getSinglyNode(temp.getNext());
 		}
 
-		return index;
+		// Connect new node to end of linked list
+		temp.setNext(node);
+		postInsertion();
+	}
+
+	@Override
+	public void addNodeInFront(INode<T> node) {
+		node.setNext(head);
+		updateHeadTo(node);
+		postInsertion();
+	}
+
+	@Override
+	public boolean removeNode(INode<T> node) {
+		// 1. Node to delete (A) is first node of list
+		// A -> B
+		// B
+		if (head == node) {
+			// Move head pointer to second node
+			updateHeadTo(head.getNext());
+			postDeletion();
+			return true;
+		}
+
+		// 2. Node to delete (B) is in middle
+		// A -> B -> C
+		// A -> C
+		// Find node for which next pointer has the node to delete (A)
+		Node<T> temp = head;
+		while (!isLast(temp.getNext())) {
+			if (temp.getNext() == node) {
+				temp.setNext(temp.getNext().getNext());
+				postDeletion();
+				return true;
+			} else {
+				temp = getSinglyNode(temp.getNext());
+			}
+		}
+
+		// 3. Node to delete (C) is at the end
+		// A -> B -> C
+		// A -> B
+		// We reached last node and last node is the node to delete
+		if (isLast(temp.getNext()) && temp.getNext() == node) {
+			temp.setNext(null);
+			postDeletion();
+			return true;
+		}
+
+		return false;
+	}
+
+	@Override
+	public int indexOf(T data) {
+		Node<T> temp = head;
+
+		int index = 0;
+		while (!isLast(temp) && !temp.contains(data)) {
+			temp = getSinglyNode(temp.getNext());
+			index = index + 1;
+		}
+
+		return temp.contains(data) ? index : -1;
+	}
+
+	@Override
+	public int size() {
+		return size;
+	}
+
+	@Override
+	public INode<T> getHead() {
+		return head;
+	}
+
+	private void postInsertion() {
+		this.size = this.size + 1;
+	}
+
+	private void postDeletion() {
+		this.size = this.size - 1;
+	}
+
+	private void updateHeadTo(INode<T> node) {
+		head = getSinglyNode(node);
+	}
+
+	private Node<T> getSinglyNode(INode<T> node) {
+		return (Node<T>) node;
+	}
+
+	private boolean isLast(INode<T> node) {
+		return node.getNext() == null;
 	}
 
 }

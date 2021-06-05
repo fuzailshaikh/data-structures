@@ -24,7 +24,7 @@ public class CircularLinkedListRunner {
 		System.out.println(list.getData());
 
 		// Index of 'E'
-		int index = list.index("E");
+		int index = list.indexOf("E");
 		System.out.println("Index of E: " + index);
 
 	}
